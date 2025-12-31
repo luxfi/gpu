@@ -1,4 +1,4 @@
-// +build !cgo
+//go:build !cgo
 
 // Package gpu provides stubs when CGO is disabled or GPU library is not available
 package gpu
@@ -7,18 +7,38 @@ import (
 	"errors"
 	"fmt"
 	"runtime"
+	"sync"
+	"unsafe"
 )
 
 var (
 	// ErrMLXNotAvailable is returned when MLX library is not built
-	ErrMLXNotAvailable = errors.New("MLX library not available - using ONNX fallback")
+	ErrMLXNotAvailable = errors.New("MLX library not available - using fallback")
 )
 
 // Context provides a fallback implementation
 type Context struct {
+	mu      sync.RWMutex
 	backend Backend
 	device  *Device
 	version string
+	arrays  map[unsafe.Pointer]*Array
+	streams map[unsafe.Pointer]*Stream
+}
+
+var (
+	// DefaultContext is the global MLX context
+	DefaultContext *Context
+)
+
+func init() {
+	DefaultContext = &Context{
+		backend: Auto,
+		arrays:  make(map[unsafe.Pointer]*Array),
+		streams: make(map[unsafe.Pointer]*Stream),
+		version: Version,
+	}
+	DefaultContext.detectBackend()
 }
 
 // Backend detection functions that work without CGO
@@ -189,4 +209,101 @@ func Info() string {
 	}
 	return fmt.Sprintf("MLX Fallback Mode - Backend: %s, Device: %s (limited functionality)",
 		backend, device.Name)
+}
+
+// Package-level functions that delegate to DefaultContext
+
+// SetBackend sets the compute backend
+func SetBackend(backend Backend) error {
+	return DefaultContext.SetBackend(backend)
+}
+
+// GetBackend returns the current compute backend
+func GetBackend() Backend {
+	return DefaultContext.GetBackend()
+}
+
+// GetDevice returns the current compute device
+func GetDevice() *Device {
+	return DefaultContext.GetDevice()
+}
+
+// Zeros creates a zero-filled array
+func Zeros(shape []int, dtype Dtype) *Array {
+	return DefaultContext.Zeros(shape, dtype)
+}
+
+// Ones creates an array filled with ones
+func Ones(shape []int, dtype Dtype) *Array {
+	return DefaultContext.Ones(shape, dtype)
+}
+
+// Random creates an array with random values
+func Random(shape []int, dtype Dtype) *Array {
+	return DefaultContext.Random(shape, dtype)
+}
+
+// Arange creates an array with sequential values
+func Arange(start, stop, step float64) *Array {
+	return DefaultContext.Arange(start, stop, step)
+}
+
+// FromSlice creates an array from a Go slice
+func FromSlice(data []float32, shape []int, dtype Dtype) *Array {
+	return DefaultContext.FromSlice(data, shape, dtype)
+}
+
+// Add performs element-wise addition
+func Add(a, b *Array) *Array {
+	return DefaultContext.Add(a, b)
+}
+
+// Maximum computes element-wise maximum of two arrays
+func Maximum(a, b *Array) *Array {
+	return DefaultContext.Maximum(a, b)
+}
+
+// Multiply performs element-wise multiplication
+func Multiply(a, b *Array) *Array {
+	return DefaultContext.Multiply(a, b)
+}
+
+// MatMul performs matrix multiplication
+func MatMul(a, b *Array) *Array {
+	return DefaultContext.MatMul(a, b)
+}
+
+// Sum computes the sum of array elements
+func Sum(a *Array, axis ...int) *Array {
+	return DefaultContext.Sum(a, axis...)
+}
+
+// Mean computes the mean of array elements
+func Mean(a *Array, axis ...int) *Array {
+	return DefaultContext.Mean(a, axis...)
+}
+
+// Eval forces evaluation of lazy operations
+func Eval(arrays ...*Array) {
+	DefaultContext.Eval(arrays...)
+}
+
+// Synchronize waits for all operations to complete
+func Synchronize() {
+	DefaultContext.Synchronize()
+}
+
+// NewStream creates a new compute stream
+func NewStream() *Stream {
+	return DefaultContext.NewStream()
+}
+
+// ArrayFromSlice creates an array from a typed Go slice with specified shape and dtype.
+func ArrayFromSlice[T int64 | float64 | float32 | int32](data []T, shape []int, dtype Dtype) *Array {
+	return DefaultContext.ArrayFromSlice(data, shape, dtype)
+}
+
+// ArrayFromSlice creates an array from a typed slice (Context method)
+func (c *Context) ArrayFromSlice(data any, shape []int, dtype Dtype) *Array {
+	return &Array{shape: shape, dtype: Float32}
 }
