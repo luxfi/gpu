@@ -1,0 +1,13 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+resourcedir=${prefix}/share/lux/gpu
+
+Name: lux-gpu
+Description: GPU acceleration foundation for Lux crypto stack (Metal/CUDA/CPU)
+Version: @PROJECT_VERSION@
+Requires:
+Libs: -L${libdir} -lluxgpu
+Libs.private: -framework Metal -framework Foundation -framework MetalPerformanceShaders
+Cflags: -I${includedir}

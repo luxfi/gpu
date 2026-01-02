@@ -1,0 +1,108 @@
+BSD 3-Clause License with Research and Network Exception
+
+Copyright (c) 2020-2025 Lux Industries Inc.
+All rights reserved.
+
+PATENT PENDING TECHNOLOGY
+Enterprise Licensing: fhe@lux.network
+
+================================================================================
+                          LUX FHE - FULLY HOMOMORPHIC ENCRYPTION
+================================================================================
+
+This license applies ONLY to files in the fhe/ directory of this repository.
+Files in the mlx/ directory remain under Apple's MIT License.
+
+For enterprise licensing, contact: fhe@lux.network
+
+This software contains patent-pending technology:
+
+- PAT-FHE-010: DMAFHE - Dual-Mode Adaptive FHE (UTXO/EVM optimization)
+- PAT-FHE-011: ULFHE - UTXO Lightweight FHE (O(1) comparison bootstrapping)
+- PAT-FHE-012: EVM256PP - Parallel uint256 Processing (AVX-512/CUDA/Metal)
+- PAT-FHE-013: XCFHE - Cross-Chain FHE Bridge (threshold re-encryption)
+- PAT-FHE-014: VAFHE - Validator-Accelerated FHE (TEE + GPU acceleration)
+- GPU-Accelerated Programmable Bootstrapping (CUDA/Metal unified)
+- Unified MLX/CUDA/CPU Backend Architecture
+- Multi-Scheme FHE API Abstraction (TFHE, CKKS, BGV, BFV)
+- Deterministic FHE Execution for Blockchain Consensus
+- Encrypted Smart Contract State Management
+
+================================================================================
+                          LICENSE TERMS
+================================================================================
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions, the patent-pending innovations notice, and the following
+   disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions, and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of Lux Industries Inc. nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+================================================================================
+                          USAGE PERMISSIONS
+================================================================================
+
+RESEARCH USE (Permitted under BSD-3-Clause above):
+- Academic research and education
+- Non-commercial evaluation and experimentation
+- Publishing research findings with attribution
+
+LUX NETWORK DEPLOYMENT (Automatic License Granted):
+- Operating nodes on Lux Network mainnet and testnet
+- Deploying smart contracts and dApps on Lux Network
+- Running fhEVM operations on Lux Network chains
+- Integration with Lux Network infrastructure
+
+ENTERPRISE USE (Contact for Licensing):
+For commercial deployment outside Lux Network, contact: fhe@lux.network
+
+Enterprise Edition includes:
+- Priority support and SLA guarantees
+- Custom optimizations for your hardware
+- Private cloud deployment assistance
+- Training and integration consulting
+- Extended warranty and indemnification
+
+================================================================================
+                          MLX UPSTREAM TRACKING
+================================================================================
+
+This repository tracks upstream MLX from Apple (MIT License).
+FHE extensions are kept separate in the fhe/ directory to:
+- Enable clean rebasing on upstream MLX releases
+- Maintain clear separation of licensing
+- Allow modular FHE capability addition
+
+Upstream: https://github.com/ml-explore/mlx
+
+================================================================================
+                          CONTRIBUTIONS
+================================================================================
+
+By submitting contributions to files in the fhe/ directory, you agree to
+license your contributions under these terms and assign patent rights to
+Lux Industries Inc.
+
+================================================================================
+
+END OF LICENSE

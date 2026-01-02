@@ -1,0 +1,24 @@
+@PACKAGE_INIT@
+
+# lux-gpu CMake Config
+# Provides GPU acceleration foundation for Lux crypto stack
+#
+# Usage:
+#   find_package(lux-gpu CONFIG REQUIRED)
+#   target_link_libraries(app PRIVATE lux::gpu)
+
+include(CMakeFindDependencyMacro)
+
+# Find Metal framework on macOS
+if(APPLE)
+  find_library(METAL_FRAMEWORK Metal)
+  find_library(FOUNDATION_FRAMEWORK Foundation)
+  find_library(METALPS_FRAMEWORK MetalPerformanceShaders)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/lux-gpuTargets.cmake")
+
+# Provide resource directory for metallib
+set(LUX_GPU_RESOURCE_DIR "${PACKAGE_PREFIX_DIR}/share/lux/gpu")
+
+check_required_components(lux-gpu)
