@@ -1,4 +1,4 @@
-//go:build luxgpu
+//go:build cgo && metal
 
 // Package gpu provides GPU-accelerated ZK operations via unified luxcpp/gpu.
 // Automatically selects best backend: CUDA > Metal > WebGPU > CPU

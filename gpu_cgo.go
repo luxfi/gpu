@@ -1,4 +1,4 @@
-//go:build luxgpu
+//go:build cgo && metal
 
 // Package gpu provides Go bindings for cross-platform GPU acceleration.
 //
