@@ -1,9 +1,9 @@
-// +build !cuda
-// +build cgo
+//go:build !cgo
 
 package gpu
 
 import (
+	"context"
 	"fmt"
 	"runtime"
 )
@@ -64,14 +64,44 @@ func (d *CPUDevice) Add(a, b []float32) ([]float32, error) {
 	if len(a) != len(b) {
 		return nil, fmt.Errorf("arrays must have same length")
 	}
-	
+
 	result := make([]float32, len(a))
-	
+
 	// Simple CPU implementation
 	// TODO: Optimize with SIMD instructions
 	for i := range a {
 		result[i] = a[i] + b[i]
 	}
-	
+
 	return result, nil
+}
+
+// cpuSessionHandle implements sessionHandle for CPU-only builds
+type cpuSessionHandle struct{}
+
+func (h *cpuSessionHandle) backend() Backend { return CPU }
+func (h *cpuSessionHandle) device() Device {
+	return Device{
+		Type:   CPU,
+		ID:     0,
+		Name:   "CPU",
+		Memory: 8 * 1024 * 1024 * 1024, // 8GB placeholder
+	}
+}
+func (h *cpuSessionHandle) sync() error                                     { return nil }
+func (h *cpuSessionHandle) syncContext(_ context.Context) error             { return nil }
+func (h *cpuSessionHandle) close() error                                    { return nil }
+func (h *cpuSessionHandle) tensor() TensorOps                               { return nil }
+func (h *cpuSessionHandle) crypto() CryptoOps                               { return nil }
+func (h *cpuSessionHandle) fhe() FHEOps                                     { return nil }
+func (h *cpuSessionHandle) ml() MLOps                                       { return nil }
+
+// newSession creates a new session for CPU-only builds
+func newSession(cfg *sessionConfig) (*Session, error) {
+	handle := &cpuSessionHandle{}
+	return &Session{
+		handle:  handle,
+		backend: CPU,
+		device:  handle.device(),
+	}, nil
 }

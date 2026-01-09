@@ -1,5 +1,4 @@
 //go:build cgo && onnx
-// +build cgo,onnx
 
 package gpu
 
@@ -27,7 +26,7 @@ int onnx_runtime_available() {
     #ifdef _WIN32
     return 1; // Always try ONNX on Windows
     #else
-    return 0; // Use MLX on other platforms by default
+    return 0; // Use Metal on other platforms by default
     #endif
 }
 
@@ -42,7 +41,7 @@ import (
 	"unsafe"
 )
 
-// ONNX backend value is defined in mlx.go
+// ONNX backend value is defined in gpu.go
 
 // ONNXContext manages ONNX Runtime resources
 type ONNXContext struct {
@@ -90,7 +89,7 @@ func (ctx *ONNXContext) Close() error {
 
 // detectONNXBackend checks if ONNX Runtime should be used as fallback
 func detectONNXBackend() bool {
-	// Use ONNX Runtime on Windows when MLX isn't available
+	// Use ONNX Runtime on Windows when Metal isn't available
 	if runtime.GOOS == "windows" {
 		return hasONNXSupport()
 	}

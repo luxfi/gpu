@@ -7,37 +7,41 @@ import (
 	"unsafe"
 )
 
-// Backend represents the compute backend used by MLX
+// Backend represents the compute backend used by Lux GPU
 type Backend int
 
 const (
-	// CPU uses CPU-only computation
-	CPU Backend = iota
+	// Auto automatically selects the best available backend
+	Auto Backend = iota
+	// CPU uses CPU-only computation with SIMD
+	CPU
 	// Metal uses Apple Metal GPU acceleration
 	Metal
 	// CUDA uses NVIDIA CUDA GPU acceleration
 	CUDA
+	// Dawn uses WebGPU via Dawn (cross-platform)
+	Dawn
 	// ONNX uses ONNX Runtime (Windows fallback)
 	ONNX
-	// Auto automatically selects the best available backend
-	Auto
 )
 
 // String returns the string representation of the backend
 func (b Backend) String() string {
 	switch b {
-	case CPU:
-		return "CPU"
-	case Metal:
-		return "Metal"
-	case CUDA:
-		return "CUDA"
-	case ONNX:
-		return "ONNX"
 	case Auto:
-		return "Auto"
+		return "auto"
+	case CPU:
+		return "cpu"
+	case Metal:
+		return "metal"
+	case CUDA:
+		return "cuda"
+	case Dawn:
+		return "dawn"
+	case ONNX:
+		return "onnx"
 	default:
-		return "Unknown"
+		return "unknown"
 	}
 }
 
@@ -54,6 +58,7 @@ type Array struct {
 	handle unsafe.Pointer
 	shape  []int
 	dtype  Dtype
+	data   []float32 // CPU fallback storage (used when CGO disabled)
 }
 
 // Shape returns the shape of the array
@@ -65,17 +70,6 @@ func (a *Array) Shape() []int {
 func (a *Array) Handle() unsafe.Pointer {
 	return a.handle
 }
-
-// Dtype represents the data type of array elements
-type Dtype int
-
-const (
-	Float32 Dtype = iota
-	Float64
-	Int32
-	Int64
-	Bool
-)
 
 // Stream represents a compute stream for async operations
 type Stream struct {
@@ -90,7 +84,7 @@ var (
 	// ErrInvalidBackend is returned for invalid backend selection
 	ErrInvalidBackend = errors.New("invalid backend")
 
-	// Version is the MLX library version
+	// Version is the GPU library version
 	Version = "0.1.0"
 )
 

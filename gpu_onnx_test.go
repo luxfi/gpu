@@ -1,4 +1,4 @@
-// +build cgo
+//go:build cgo && onnx
 
 package gpu
 
@@ -34,17 +34,17 @@ func TestONNXBackendSelection(t *testing.T) {
 	}
 
 	// Save original backend
-	originalBackend := os.Getenv("MLX_BACKEND")
+	originalBackend := os.Getenv("LUX_GPU_BACKEND")
 	defer func() {
 		if originalBackend != "" {
-			os.Setenv("MLX_BACKEND", originalBackend)
+			os.Setenv("LUX_GPU_BACKEND", originalBackend)
 		} else {
-			os.Unsetenv("MLX_BACKEND")
+			os.Unsetenv("LUX_GPU_BACKEND")
 		}
 	}()
 
 	// Test explicit ONNX backend selection
-	os.Setenv("MLX_BACKEND", "onnx")
+	os.Setenv("LUX_GPU_BACKEND", "onnx")
 	
 	ctx := &Context{
 		arrays:  make(map[unsafe.Pointer]*Array),
@@ -79,7 +79,7 @@ func TestONNXFallbackMode(t *testing.T) {
 		t.Skip("ONNX fallback is Windows-specific")
 	}
 
-	// Test that we can create context even without MLX library
+	// Test that we can create context even without GPU library
 	ctx := &Context{
 		arrays:  make(map[unsafe.Pointer]*Array),
 		streams: make(map[unsafe.Pointer]*Stream),
@@ -156,7 +156,7 @@ func TestONNXInfo(t *testing.T) {
 
 	// Test Info() function with ONNX backend
 	info := Info()
-	t.Logf("MLX Info: %s", info)
+	t.Logf("GPU Info: %s", info)
 	
 	if info == "" {
 		t.Error("Info should not be empty")

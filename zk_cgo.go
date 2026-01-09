@@ -5,8 +5,12 @@
 package gpu
 
 /*
-#cgo pkg-config: lux-gpu
+#cgo CFLAGS: -I${SRCDIR}/../cpp/install/include
+#cgo darwin LDFLAGS: -L${SRCDIR}/../cpp/install/lib -Wl,-rpath,${SRCDIR}/../cpp/install/lib -lluxgpu -framework Metal -framework Foundation
+#cgo linux LDFLAGS: -L${SRCDIR}/../cpp/install/lib -Wl,-rpath,${SRCDIR}/../cpp/install/lib -lluxgpu -lcuda -lcudart
+#cgo windows LDFLAGS: -L${SRCDIR}/../cpp/install/lib -lluxgpu -lcuda -lcudart
 #include <lux/gpu/gpu.h>
+#include <lux/gpu/zk.h>
 #include <stdlib.h>
 */
 import "C"

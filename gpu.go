@@ -42,7 +42,7 @@ type Context struct {
 }
 
 var (
-	// DefaultContext is the global MLX context
+	// DefaultContext is the global GPU context
 	DefaultContext *Context
 )
 
@@ -58,11 +58,11 @@ func init() {
 
 // Backend detection functions that work without CGO
 func hasMetalSupport() bool {
-	return false // No Metal without MLX
+	return false // No Metal without Lux GPU
 }
 
 func hasCUDASupport() bool {
-	return false // No CUDA without MLX
+	return false // No CUDA without Lux GPU
 }
 
 func getMetalDeviceName() string {
@@ -86,7 +86,7 @@ func getSystemMemory() int64 {
 	return 8 * 1024 * 1024 * 1024
 }
 
-// detectBackend falls back to ONNX on Windows when MLX not available
+// detectBackend falls back to ONNX on Windows when GPU not available
 func (c *Context) detectBackend() {
 	// On Windows, try ONNX Runtime
 	if runtime.GOOS == "windows" {
@@ -107,12 +107,12 @@ func (c *Context) detectBackend() {
 	c.device = &Device{
 		Type:   CPU,
 		ID:     0,
-		Name:   "CPU (no MLX)",
+		Name:   "CPU (no GPU)",
 		Memory: getSystemMemory(),
 	}
 }
 
-// SetBackend sets the backend (limited without MLX)
+// SetBackend sets the backend (limited without GPU)
 func (c *Context) SetBackend(backend Backend) error {
 	if backend == Metal || backend == CUDA {
 		return fmt.Errorf("%w: %s backend requires GPU library", ErrGPUNotAvailable, backend)
@@ -136,7 +136,7 @@ func (c *Context) SetBackend(backend Backend) error {
 	c.device = &Device{
 		Type:   CPU,
 		ID:     0,
-		Name:   "CPU (no MLX)",
+		Name:   "CPU (no GPU)",
 		Memory: getSystemMemory(),
 	}
 	return nil
@@ -317,10 +317,10 @@ func Info() string {
 	backend := GetBackend()
 	device := GetDevice()
 	if backend == ONNX {
-		return fmt.Sprintf("MLX Fallback Mode - Backend: %s, Device: %s (MLX library not available)",
+		return fmt.Sprintf("GPU Fallback Mode - Backend: %s, Device: %s (GPU library not available)",
 			backend, device.Name)
 	}
-	return fmt.Sprintf("MLX Fallback Mode - Backend: %s, Device: %s (limited functionality)",
+	return fmt.Sprintf("GPU Fallback Mode - Backend: %s, Device: %s (limited functionality)",
 		backend, device.Name)
 }
 

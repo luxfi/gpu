@@ -1,4 +1,4 @@
-// +build cgo
+//go:build cgo
 
 package gpu
 
@@ -35,7 +35,7 @@ func TestBackendDetection(t *testing.T) {
 
 func TestInfo(t *testing.T) {
 	info := Info()
-	t.Logf("MLX Info: %s", info)
+	t.Logf("GPU Info: %s", info)
 	
 	if info == "" {
 		t.Error("Info() returned empty string")

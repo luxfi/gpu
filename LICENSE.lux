@@ -11,7 +11,7 @@ Enterprise Licensing: fhe@lux.network
 ================================================================================
 
 This license applies ONLY to files in the fhe/ directory of this repository.
-Files in the mlx/ directory remain under Apple's MIT License.
+
 
 For enterprise licensing, contact: fhe@lux.network
 
@@ -23,7 +23,7 @@ This software contains patent-pending technology:
 - PAT-FHE-013: XCFHE - Cross-Chain FHE Bridge (threshold re-encryption)
 - PAT-FHE-014: VAFHE - Validator-Accelerated FHE (TEE + GPU acceleration)
 - GPU-Accelerated Programmable Bootstrapping (CUDA/Metal unified)
-- Unified MLX/CUDA/CPU Backend Architecture
+- Unified Metal/CUDA/CPU Backend Architecture
 - Multi-Scheme FHE API Abstraction (TFHE, CKKS, BGV, BFV)
 - Deterministic FHE Execution for Blockchain Consensus
 - Encrypted Smart Contract State Management
@@ -84,16 +84,13 @@ Enterprise Edition includes:
 - Extended warranty and indemnification
 
 ================================================================================
-                          MLX UPSTREAM TRACKING
 ================================================================================
 
-This repository tracks upstream MLX from Apple (MIT License).
+
 FHE extensions are kept separate in the fhe/ directory to:
-- Enable clean rebasing on upstream MLX releases
 - Maintain clear separation of licensing
 - Allow modular FHE capability addition
 
-Upstream: https://github.com/ml-explore/mlx
 
 ================================================================================
                           CONTRIBUTIONS
