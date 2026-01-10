@@ -5,13 +5,32 @@
 package gpu
 
 /*
-#cgo CFLAGS: -I${SRCDIR}/../cpp/install/include
-#cgo darwin LDFLAGS: -L${SRCDIR}/../cpp/install/lib -Wl,-rpath,${SRCDIR}/../cpp/install/lib -lluxgpu -framework Metal -framework Foundation
-#cgo linux LDFLAGS: -L${SRCDIR}/../cpp/install/lib -Wl,-rpath,${SRCDIR}/../cpp/install/lib -lluxgpu -lcuda -lcudart
-#cgo windows LDFLAGS: -L${SRCDIR}/../cpp/install/lib -lluxgpu -lcuda -lcudart
-#include <lux/gpu/gpu.h>
-#include <lux/gpu/zk.h>
+#cgo pkg-config: lux-gpu
+#include <lux/gpu.h>
 #include <stdlib.h>
+
+// ZK thresholds - define here since zk.h may not be installed
+#define LUX_ZK_THRESHOLD_POSEIDON2 64
+#define LUX_ZK_THRESHOLD_MERKLE 128
+#define LUX_ZK_THRESHOLD_MSM 256
+#define LUX_ZK_THRESHOLD_COMMITMENT 64
+
+// Fr256 type for ZK operations
+typedef struct { uint64_t limbs[4]; } LuxFr256;
+
+// ZK operation stubs (to be implemented in C library)
+static inline LuxError lux_gpu_poseidon2(LuxGPU* gpu, LuxFr256* out, const LuxFr256* left, const LuxFr256* right, size_t n) {
+    (void)gpu; (void)out; (void)left; (void)right; (void)n;
+    return LUX_ERROR_NOT_SUPPORTED;
+}
+static inline LuxError lux_gpu_merkle_root(LuxGPU* gpu, LuxFr256* out, const LuxFr256* leaves, size_t n) {
+    (void)gpu; (void)out; (void)leaves; (void)n;
+    return LUX_ERROR_NOT_SUPPORTED;
+}
+static inline LuxError lux_gpu_commitment(LuxGPU* gpu, LuxFr256* out, const LuxFr256* values, const LuxFr256* blindings, const LuxFr256* salts, size_t n) {
+    (void)gpu; (void)out; (void)values; (void)blindings; (void)salts; (void)n;
+    return LUX_ERROR_NOT_SUPPORTED;
+}
 */
 import "C"
 import (
@@ -53,7 +72,7 @@ func ZKGPUAvailable() bool {
 		return false
 	}
 	backend := C.lux_gpu_backend(gpu)
-	return backend != C.LUX_GPU_BACKEND_CPU
+	return backend != C.LUX_BACKEND_CPU
 }
 
 // ZKGetBackend returns the active backend name.
@@ -71,7 +90,11 @@ func ZKGetDeviceName() string {
 	if gpu == nil {
 		return "None"
 	}
-	return C.GoString(C.lux_gpu_device_name(gpu))
+	var info C.LuxDeviceInfo
+	if C.lux_gpu_device_info(gpu, &info) != C.LUX_OK {
+		return "Unknown"
+	}
+	return C.GoString(info.name)
 }
 
 // ZKGetThreshold returns the recommended batch size threshold for GPU.
@@ -92,16 +115,18 @@ func ZKGetThreshold(opType int) int {
 }
 
 // zkError converts C error code to Go error.
-func zkError(code C.int) error {
+func zkError(code C.LuxError) error {
 	switch code {
-	case C.LUX_GPU_OK:
+	case C.LUX_OK:
 		return nil
-	case C.LUX_GPU_ERROR_INVALID_ARGS:
+	case C.LUX_ERROR_INVALID_ARGUMENT:
 		return ErrZKInvalidArg
-	case C.LUX_GPU_ERROR_NO_DEVICE:
+	case C.LUX_ERROR_DEVICE_NOT_FOUND:
 		return ErrZKNoDevice
-	case C.LUX_GPU_ERROR_OUT_OF_MEMORY:
+	case C.LUX_ERROR_OUT_OF_MEMORY:
 		return ErrZKAlloc
+	case C.LUX_ERROR_NOT_SUPPORTED:
+		return ErrZKNotImpl
 	default:
 		return errors.New("zk: unknown error")
 	}
@@ -265,5 +290,9 @@ func Sync() error {
 // GetMemoryInfo returns total and free GPU memory in bytes.
 func GetMemoryInfo() (total, free uint64) {
 	gpu := getGPU()
-	return uint64(C.lux_gpu_memory_total(gpu)), uint64(C.lux_gpu_memory_free(gpu))
+	var info C.LuxDeviceInfo
+	if C.lux_gpu_device_info(gpu, &info) != C.LUX_OK {
+		return 0, 0
+	}
+	return uint64(info.memory_total), uint64(info.memory_available)
 }
