@@ -9,28 +9,19 @@ package gpu
 #include <lux/gpu.h>
 #include <stdlib.h>
 
-// ZK thresholds - define here since zk.h may not be installed
+// ZK thresholds — fallback if not defined by the header
+#ifndef LUX_ZK_THRESHOLD_POSEIDON2
 #define LUX_ZK_THRESHOLD_POSEIDON2 64
+#endif
+#ifndef LUX_ZK_THRESHOLD_MERKLE
 #define LUX_ZK_THRESHOLD_MERKLE 128
+#endif
+#ifndef LUX_ZK_THRESHOLD_MSM
 #define LUX_ZK_THRESHOLD_MSM 256
+#endif
+#ifndef LUX_ZK_THRESHOLD_COMMITMENT
 #define LUX_ZK_THRESHOLD_COMMITMENT 64
-
-// Fr256 type for ZK operations
-typedef struct { uint64_t limbs[4]; } LuxFr256;
-
-// ZK operation stubs (to be implemented in C library)
-static inline LuxError lux_gpu_poseidon2(LuxGPU* gpu, LuxFr256* out, const LuxFr256* left, const LuxFr256* right, size_t n) {
-    (void)gpu; (void)out; (void)left; (void)right; (void)n;
-    return LUX_ERROR_NOT_SUPPORTED;
-}
-static inline LuxError lux_gpu_merkle_root(LuxGPU* gpu, LuxFr256* out, const LuxFr256* leaves, size_t n) {
-    (void)gpu; (void)out; (void)leaves; (void)n;
-    return LUX_ERROR_NOT_SUPPORTED;
-}
-static inline LuxError lux_gpu_commitment(LuxGPU* gpu, LuxFr256* out, const LuxFr256* values, const LuxFr256* blindings, const LuxFr256* salts, size_t n) {
-    (void)gpu; (void)out; (void)values; (void)blindings; (void)salts; (void)n;
-    return LUX_ERROR_NOT_SUPPORTED;
-}
+#endif
 */
 import "C"
 import (
