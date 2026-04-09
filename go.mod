@@ -1,3 +1,3 @@
-module github.com/luxfi/lux/gpu
+module github.com/luxfi/gpu
 
 go 1.22
