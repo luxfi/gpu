@@ -29,22 +29,35 @@ import (
 // environ via runtime_setenv, so the C++ initializers of libluxgpu observe
 // the values on first call.
 
-const (
-	defaultLuxBackendPath  = "/Users/z/work/luxcpp/gpu/build/metal_backend"
-	defaultLuxMetalKernels = "/Users/z/work/luxcpp/metal/src/shaders"
-)
+// luxcppDir returns the luxcpp source root. LUXCPP_DIR overrides the default
+// of $HOME/work/luxcpp.
+func luxcppDir() string {
+	if d := os.Getenv("LUXCPP_DIR"); d != "" {
+		return d
+	}
+	return os.ExpandEnv("$HOME/work/luxcpp")
+}
+
+func defaultLuxBackendPath() string {
+	return luxcppDir() + "/gpu/build/metal_backend"
+}
+
+func defaultLuxMetalKernels() string {
+	return luxcppDir() + "/metal/src/shaders"
+}
 
 // applyBackendEnv pushes the backend env vars into the process environment
 // if they are unset (idempotent on test re-runs).
 func applyBackendEnv() {
+	backendPath := defaultLuxBackendPath()
 	if existing := os.Getenv("LUX_GPU_BACKEND_PATH"); existing == "" {
-		_ = os.Setenv("LUX_GPU_BACKEND_PATH", defaultLuxBackendPath)
-	} else if !containsPath(existing, defaultLuxBackendPath) {
+		_ = os.Setenv("LUX_GPU_BACKEND_PATH", backendPath)
+	} else if !containsPath(existing, backendPath) {
 		_ = os.Setenv("LUX_GPU_BACKEND_PATH",
-			defaultLuxBackendPath+":"+existing)
+			backendPath+":"+existing)
 	}
 	if os.Getenv("LUX_METAL_KERNEL_PATH") == "" {
-		_ = os.Setenv("LUX_METAL_KERNEL_PATH", defaultLuxMetalKernels)
+		_ = os.Setenv("LUX_METAL_KERNEL_PATH", defaultLuxMetalKernels())
 	}
 }
 
