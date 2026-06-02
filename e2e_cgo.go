@@ -354,10 +354,10 @@ func tensorReduceMean(t *cTensor) float32 {
 	return float32(C.lux_tensor_reduce_mean(getGPU(), t.handle))
 }
 
-func tensorNdim(t *cTensor) int                  { return int(C.lux_tensor_ndim(t.handle)) }
-func tensorShape(t *cTensor, dim int) int64      { return int64(C.lux_tensor_shape(t.handle, C.int(dim))) }
-func tensorSize(t *cTensor) int64                { return int64(C.lux_tensor_size(t.handle)) }
-func tensorDtype(t *cTensor) C.LuxDtype          { return C.lux_tensor_dtype(t.handle) }
+func tensorNdim(t *cTensor) int             { return int(C.lux_tensor_ndim(t.handle)) }
+func tensorShape(t *cTensor, dim int) int64 { return int64(C.lux_tensor_shape(t.handle, C.int(dim))) }
+func tensorSize(t *cTensor) int64           { return int64(C.lux_tensor_size(t.handle)) }
+func tensorDtype(t *cTensor) C.LuxDtype     { return C.lux_tensor_dtype(t.handle) }
 
 // tensorToHostFloat32 copies the tensor's data back to a Go []float32 of the
 // expected size.
@@ -661,10 +661,10 @@ func fheABIRevision() uint32 { return uint32(C.lux_fhe_abi_revision()) }
 // Backend query + lifecycle (the surface beyond what gpu_cgo.go exposes).
 // =============================================================================
 
-func backendCount() int             { return int(C.lux_backend_count()) }
-func backendAvailable(b int) bool   { return bool(C.lux_backend_available(C.LuxBackend(b))) }
-func backendName(b int) string      { return C.GoString(C.lux_backend_name(C.LuxBackend(b))) }
-func deviceCount(b int) int         { return int(C.lux_device_count(C.LuxBackend(b))) }
+func backendCount() int           { return int(C.lux_backend_count()) }
+func backendAvailable(b int) bool { return bool(C.lux_backend_available(C.LuxBackend(b))) }
+func backendName(b int) string    { return C.GoString(C.lux_backend_name(C.LuxBackend(b))) }
+func deviceCount(b int) int       { return int(C.lux_device_count(C.LuxBackend(b))) }
 
 // gpuErrorString returns whatever lux_gpu_error reports for the current GPU
 // context, or empty string when no error is pending.
@@ -702,10 +702,10 @@ func eventCreate() *cEvent {
 	}
 	return &cEvent{h: h}
 }
-func eventDestroy(e *cEvent)               { C.lux_event_destroy(e.h); e.h = nil }
-func eventRecord(e *cEvent, s *cStream) LuxErr  { return errFromLux(C.lux_event_record(e.h, s.h)) }
-func eventWait(e *cEvent, s *cStream) LuxErr    { return errFromLux(C.lux_event_wait(e.h, s.h)) }
-func eventElapsed(a, b *cEvent) float32    { return float32(C.lux_event_elapsed(a.h, b.h)) }
+func eventDestroy(e *cEvent)                   { C.lux_event_destroy(e.h); e.h = nil }
+func eventRecord(e *cEvent, s *cStream) LuxErr { return errFromLux(C.lux_event_record(e.h, s.h)) }
+func eventWait(e *cEvent, s *cStream) LuxErr   { return errFromLux(C.lux_event_wait(e.h, s.h)) }
+func eventElapsed(a, b *cEvent) float32        { return float32(C.lux_event_elapsed(a.h, b.h)) }
 
 // =============================================================================
 // secp256k1 ecrecover (single-call helper used by the e2e test)
