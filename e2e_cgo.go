@@ -822,9 +822,24 @@ func mldsaVerifyBatch(pks, msgs, sigs [][]byte) ([]bool, LuxErr) {
 	pkPtrs := make([]*C.uint8_t, n)
 	msgPtrs := make([]*C.uint8_t, n)
 	sigPtrs := make([]*C.uint8_t, n)
+	// Red C-4: v14 promoted lux_gpu_mldsa_verify_batch from 5 args to 8.
+	// Per-element msg_lens (NULL = uniform width) + msg_width_hint
+	// (uniform batch fast path) must travel through cgo. This wrapper
+	// has every element at the same width so we go uniform — pass nil
+	// for msg_lens and propagate len(msgs[0]) as the hint. If callers
+	// ever start passing variable-width msgs[], they need their own
+	// path that builds a msgLens slice (see slhdsaVerifyBatch below).
+	var msgWidth C.uint32_t
+	if len(msgs) > 0 {
+		msgWidth = C.uint32_t(len(msgs[0]))
+	}
 	for i := 0; i < n; i++ {
 		pkPtrs[i] = (*C.uint8_t)(unsafe.Pointer(&pks[i][0]))
-		msgPtrs[i] = (*C.uint8_t)(unsafe.Pointer(&msgs[i][0]))
+		if len(msgs[i]) > 0 {
+			msgPtrs[i] = (*C.uint8_t)(unsafe.Pointer(&msgs[i][0]))
+		} else {
+			msgPtrs[i] = nil
+		}
 		sigPtrs[i] = (*C.uint8_t)(unsafe.Pointer(&sigs[i][0]))
 	}
 	results := make([]C.bool, n)
@@ -832,6 +847,8 @@ func mldsaVerifyBatch(pks, msgs, sigs [][]byte) ([]bool, LuxErr) {
 		getGPU(),
 		(**C.uint8_t)(unsafe.Pointer(&pkPtrs[0])),
 		(**C.uint8_t)(unsafe.Pointer(&msgPtrs[0])),
+		nil, // msg_lens — nil routes through msg_width_hint
+		msgWidth,
 		(**C.uint8_t)(unsafe.Pointer(&sigPtrs[0])),
 		(*C.bool)(unsafe.Pointer(&results[0])),
 		C.size_t(n),
