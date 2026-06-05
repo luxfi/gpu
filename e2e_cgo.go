@@ -846,6 +846,10 @@ func mldsaVerifyBatch(pks, msgs, sigs [][]byte) ([]bool, LuxErr) {
 	return out, errLuxOK
 }
 
+// slhdsaVerifyBatch wraps the ABI v13 lux_gpu_slhdsa_verify_batch which
+// takes per-element message lengths. v12 hardcoded msg_len=32 inside
+// the wrapper, which silently broke every caller whose msg was not 32
+// bytes (the FIPS 205 / ACVP contract is arbitrary length).
 func slhdsaVerifyBatch(pks, msgs, sigs [][]byte) ([]bool, LuxErr) {
 	n := len(pks)
 	if n == 0 {
@@ -854,16 +858,23 @@ func slhdsaVerifyBatch(pks, msgs, sigs [][]byte) ([]bool, LuxErr) {
 	pkPtrs := make([]*C.uint8_t, n)
 	msgPtrs := make([]*C.uint8_t, n)
 	sigPtrs := make([]*C.uint8_t, n)
+	msgLens := make([]C.size_t, n)
 	for i := 0; i < n; i++ {
 		pkPtrs[i] = (*C.uint8_t)(unsafe.Pointer(&pks[i][0]))
-		msgPtrs[i] = (*C.uint8_t)(unsafe.Pointer(&msgs[i][0]))
+		if len(msgs[i]) > 0 {
+			msgPtrs[i] = (*C.uint8_t)(unsafe.Pointer(&msgs[i][0]))
+		} else {
+			msgPtrs[i] = nil
+		}
 		sigPtrs[i] = (*C.uint8_t)(unsafe.Pointer(&sigs[i][0]))
+		msgLens[i] = C.size_t(len(msgs[i]))
 	}
 	results := make([]C.bool, n)
 	rc := C.lux_gpu_slhdsa_verify_batch(
 		getGPU(),
 		(**C.uint8_t)(unsafe.Pointer(&pkPtrs[0])),
 		(**C.uint8_t)(unsafe.Pointer(&msgPtrs[0])),
+		(*C.size_t)(unsafe.Pointer(&msgLens[0])),
 		(**C.uint8_t)(unsafe.Pointer(&sigPtrs[0])),
 		(*C.bool)(unsafe.Pointer(&results[0])),
 		C.size_t(n),
