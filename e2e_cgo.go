@@ -116,6 +116,7 @@ import "C"
 
 import (
 	"errors"
+	"fmt"
 	"unsafe"
 )
 
@@ -829,9 +830,20 @@ func mldsaVerifyBatch(pks, msgs, sigs [][]byte) ([]bool, LuxErr) {
 	// for msg_lens and propagate len(msgs[0]) as the hint. If callers
 	// ever start passing variable-width msgs[], they need their own
 	// path that builds a msgLens slice (see slhdsaVerifyBatch below).
+	//
+	// Red L-1: defensive uniform-width check. The wrapper goes uniform
+	// (msg_lens = nil + msg_width_hint = len(msgs[0])). If a caller hands
+	// us non-uniform msgs[] we'd lie to the C ABI about every element
+	// past index 0, producing wrong verdicts. Detect at the boundary
+	// and return an explicit error instead of silently miscounting.
 	var msgWidth C.uint32_t
 	if len(msgs) > 0 {
 		msgWidth = C.uint32_t(len(msgs[0]))
+		for i := 1; i < len(msgs); i++ {
+			if len(msgs[i]) != len(msgs[0]) {
+				return nil, fmt.Errorf("lux_mldsa_verify_batch: non-uniform msg widths (%d vs %d at index %d); pass per-element msg_lens via the v14 API directly", len(msgs[0]), len(msgs[i]), i)
+			}
+		}
 	}
 	for i := 0; i < n; i++ {
 		pkPtrs[i] = (*C.uint8_t)(unsafe.Pointer(&pks[i][0]))
