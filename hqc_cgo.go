@@ -23,6 +23,20 @@
 // so that ${SRCDIR}/../mlx/include resolves to the lux/gpu headers.
 // libluxgpu_hqc.a is statically linked from the same build dir.
 //
+// Note on the `randombytes` symbol: libluxgpu_hqc.a has unresolved
+// references to PQClean's `randombytes(uint8_t*, size_t)`. The Lux
+// build system intentionally splits the provider out into a separate
+// archive (libluxgpu_hqc_standalone_rng.a) so binaries that supply
+// their own `randombytes` (luxfi/crypto/hqc's randombytes_shim.c
+// under build tag hqc_pqclean, or luxfi/accel/ops/code's
+// code_cpu_randombytes.go strong definition) can avoid linking the
+// shim and get a clean single definition. Linking the shim in here
+// unconditionally collides with those providers. Any consumer that
+// imports luxfi/gpu's HQC entry points reaches them through
+// luxfi/accel or luxfi/crypto/hqc, both of which provide
+// `randombytes`. So we leave the symbol unresolved at the gpu layer
+// and let the higher-level package supply it.
+//
 // Threshold routing: every entry point inspects the batch count and
 // HQCGetThreshold(opType). Below threshold callers should keep the
 // op on the CPU pure-Go path in crypto/hqc/gpu_nocgo.go to avoid the
@@ -32,8 +46,8 @@ package gpu
 
 /*
 #cgo CFLAGS: -I${SRCDIR}/../mlx/include
-#cgo darwin LDFLAGS: -L${SRCDIR}/../mlx/build -lluxgpu_hqc -lluxgpu_hqc_standalone_rng -lc++ -framework Security
-#cgo !darwin LDFLAGS: -L${SRCDIR}/../mlx/build -lluxgpu_hqc -lluxgpu_hqc_standalone_rng -lstdc++ -lm
+#cgo darwin LDFLAGS: -L${SRCDIR}/../mlx/build -lluxgpu_hqc -lc++ -framework Security
+#cgo !darwin LDFLAGS: -L${SRCDIR}/../mlx/build -lluxgpu_hqc -lstdc++ -lm
 
 #include <stdint.h>
 #include <stddef.h>
