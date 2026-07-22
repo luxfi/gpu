@@ -5,7 +5,7 @@
 package gpu
 
 /*
-#cgo pkg-config: lux-gpu
+#cgo pkg-config: luxgpu
 #include <lux/gpu.h>
 #include <stdlib.h>
 
